@@ -1,5 +1,23 @@
-{% extends outline %}
-{% block title %}HOME{% endblock %}
+{% extends "base.html" %}
+{% block title %}Fitness Guru{% endblock %}
 {% block content %}
-<h1>MEMBERSHIP </h1>
+
+<div class="memberships">
+    <div class="silver_membership">
+        <h1>Silver Membership</h1>
+        <h3>Standard Membership</h3>
+        <h3>24/7 Gym Access</h3>
+        <h3>Customizable Benefits With Additional Payments</h3>
+        <button><a href="#">Upgrade Now</a></button>
+
+    </div>
+    <div class="gold_membership">
+        <h1>Gold Membership</h1>
+        <h3>Premium Membership</h3>
+        <h3>24/7 Gym Access</h3>
+        <h3>All Benefits and Access Included</h3>
+        <button><a href="#">Upgrade Now</a></button>
+    </div>
+</div>
+
 {% endblock %}

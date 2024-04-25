@@ -1,3 +1,4 @@
+/* NAVIGATION BAR */
 .dropdown{
   float: left;
   overflow: hidden;
@@ -51,6 +52,7 @@
 
 body {
   background-color: #111;
+  color: #FFFFFF;
 }
 nav {
   display: inline;
@@ -78,4 +80,34 @@ li a:hover {
 }
 .profile_button {
   background-color: darkslateblue;
+}
+
+/* MEMBERSHIP PAGE */
+.memberships {
+  display: inline-flex;
+  text-align: center;
+  
+
+}
+.memberships h1 {
+  padding-top: 20%;
+  padding-bottom: 20%;
+}
+.silver_membership {
+  padding-right: 25%;
+  padding-left: 25%;
+  margin-left: 25%;
+  width: 20%;
+  border-radius: 25px;
+  background-color: silver;
+  /* display: inline-block; */
+}
+.gold_membership {
+  padding-left: 25%;
+  padding-right: 25%;
+  width: 20%;
+  margin-right: 25%;
+  border-radius: 25px;
+  background-color: gold;
+  /* display: block; */
 }
