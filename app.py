@@ -21,10 +21,20 @@ cipher = SimpleCrypt()
 cipher.init_app(app)
 
 ############################### tables ##############################
+class Services(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    service_name = db.Column(db.String(255), nullable=False)
+    time = db.Column(db.String(5))
+    date = db.Column(db.String(10))
+    instructor = db.Column(db.String(50))
+    benefit_id = db.Column(db.Integer, db.ForeignKey('membership.id'), nullable=True)
+
 class Benefits(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    service_name = db.Column(db.String(30), nullable=False)
+    service_name = db.Column(db.String(30), db.ForeignKey('services.service_name'), nullable=False)
     membership_id = db.Column(db.Integer, db.ForeignKey('membership.id'), nullable=True)
+    services = db.relationship('Services', backref='Benefits')
+
 
 class Membership(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -124,7 +134,21 @@ def membership():
 
 @app.route("/training")
 def training():
-    return render_template("training.html", outline="outline1.html")
+    services = db.session.query(Services) \
+        .join(Benefits, Services.benefit_id == Benefits.id) \
+        .join(Membership, Benefits.membership_id == Membership.id) \
+        .join(Member, Membership.id == Member.membership_id) \
+        .filter(Member.id == current_user.id) \
+        .all()
+
+    for service in services:
+        print(f"Service Name: {service.service_name}")
+        print(f"Time: {service.time}")
+        print(f"Date: {service.date}")
+        print(f"Instructor: {service.instructor}")
+        print("----------------\n")
+
+    return render_template("training.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
