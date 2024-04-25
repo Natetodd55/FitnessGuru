@@ -79,6 +79,7 @@ def login():
                 member.authenticated = True
                 db.session.add(member)
                 db.session.commit()
+                login_user(member, remember=True)
                 return render_template('dashboard.html')
 
     return render_template('login.html')
@@ -95,6 +96,7 @@ def create_member():
             member = Member(first_name = f_name, last_name=l_name, email=email, password=member_pass)
             db.session.add(member)
             db.session.commit()
+            login_user(member, remember=True)
             return render_template('dashboard.html')
         else:
             message = "Member already registered with email: "+email
@@ -109,7 +111,7 @@ def logout():
     db.session.add(user)
     db.session.commit()
     logout_user()
-    return render_template('/')
+    return render_template('dashboard.html')
 
 
 @app.route("/dashboard")

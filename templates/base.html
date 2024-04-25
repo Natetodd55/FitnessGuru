@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/static/style.css" rel="stylesheet">    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+
+    </style>
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+    {% if current_user.is_authenticated %}
+    <div class="navBar">
+        <nav>
+            <ul>
+
+                <li>
+                    <a href="/dashboard">DASHBOARD</a>
+                </li>
+                <li>
+                    <a href="/membership">MEMBERSHIP</a>
+                </li>
+                <li>
+                    <a href="/training">TRAINING</a>
+                </li>
+                <li>
+                    <a href="/logout">LOG OUT</a>
+                </li>
+
+                <div class="dropdown">
+                    <button class="dropbtn">Account <i class="fa fa-caret-down"></i> </button>
+                    <div class="dropdown-content">
+                        <a href="/updatePassword">Change Password</a>
+                        {% if current_user.admin == 1 %}
+                        <a href="/createAdmin">Create Admin</a>
+                        {% endif %}
+                        <a href="/logout">Logout</a>
+                    </div>
+                </div>
+            </ul>
+        </nav>
+    </div>
+    {% else %}
+        <div class="navBar">
+        <nav>
+            <ul>
+
+                <li>
+                    <a href="/dashboard">DASHBOARD</a>
+                </li>
+                <li>
+                    <a href="/login">LOGIN</a>
+                </li>
+            </ul>
+        </nav>
+        </div>
+    {% endif %}
+    <div>
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
