@@ -33,9 +33,34 @@
         .profile_button {
             background-color: darkslateblue;
         }
+        .dropdown_container {
+            display: none;
+            position: absolute;
+        }
     </style>
     <script>
-        
+        var clicks = 0;
+        function profile_button_dropdown() {
+            document.getElementById("dropdown_container").style.display="block";
+            // console.log(""+document.getElementById("dropdown_container").classList);
+        }
+        window.onclick = function(event) {
+            if (!event.target.matches('.profile_button')) {
+                clicks++;
+                if (clicks % 2 == 0) {
+                    document.getElementById("dropdown_container").style.display="none";
+                } else {
+                    var dropdowns = document.getElementsByClassName("dropdown_container");
+                    var i;
+                    for (i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                        if (openDropdown.classList.contains('show')) {
+                            openDropdown.classList.remove('show');
+                        }
+                    }
+                }
+            }
+        }
     </script>
     
     <title>{% block title %}{% endblock %}</title>
@@ -60,13 +85,12 @@
                 </li>
                 
                 <li style="float:right;  margin: 0px;">
-                    <button style="border-radius: 40%; padding: 8px;" class="profile_button">
+                    <button onclick="profile_button_dropdown()" style="border-radius: 40%; padding: 8px; margin-right: 25px;" class="profile_button">
                         <i class="material-icons">person</i>
                     </button>
-                    <div class="dropdown-container">
-                        <a href="#">Link 1</a>
-                        <a href="#">Link 2</a>
-                        <a href="#">Link 3</a>
+                    <div id="dropdown_container" class="dropdown_container">
+                        <a href="#">Profile</a>
+                        <a href="#">Logout</a>
                     </div>
                 </li>
             </ul>
