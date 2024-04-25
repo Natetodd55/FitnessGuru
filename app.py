@@ -30,14 +30,24 @@ app = Flask(__name__)
 # db.create_all()
 
 ############################ flask_routes ###########################
-@app.route("/dashboard")
+@app.route("/")
 def home():
     return render_template("dashboard.html", outline="outline1.html")
 
+@app.route("/login", methods=["POST"])
+def login():
+    if (request.method=="POST"):
+        return render_template("dashboard.html", outline="outline1.html")
+
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html", outline="outline1.html")
+
 @app.route("/membership")
-def home():
+def membership():
     return render_template("membership.html", outline="outline1.html")
 
 @app.route("/training")
-def home():
+def training():
     return render_template("training.html", outline="outline1.html")
+
