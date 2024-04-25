@@ -1,0 +1,29 @@
+{% extends "outline1.html" %}
+{% block title %}
+Create Account
+{% endblock %}
+{% block content %}
+    <form action="/create_member" method="POST">
+        <label><b>
+            First Name
+        </b></label>
+        <input type="input" name="first_name" placeholder="First Name">
+        <br>
+        <label><b>
+            Last Name
+        </b></label>
+        <input type="input" name="last_name" placeholder="Last Name">
+        <br>
+        <label><b>
+            Email
+        </b></label>
+        <input type="input" name="email" placeholder="Email">
+        {% if message %} {{ message }} {% endif %}
+        <br>
+        <label><b>
+            Password
+        </b></label>
+        <input type="password" name="password" placeholder="Password">
+        <input type="submit" value="Create">
+    </form>
+{% endblock %}
