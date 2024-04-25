@@ -1,9 +1,25 @@
 {% extends "base.html" %}
-<<<<<<< Updated upstream
-{% block title %}HOME{% endblock %}
-=======
 {% block title %}Training Calendar{% endblock %}
->>>>>>> Stashed changes
 {% block content %}
 <h1>TRAINING</h1>
+{% if services %}
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Time</th>
+    <th>Date</th>
+    <th>Instructor</th>
+  </tr>
+  {% for service in services %}
+  <tr>
+    <td>{{ service.name }}</td>
+    <td>{{ service.time }}</td>
+    <td>{{ service.date }}</td>
+    <td>{{ service.instructor }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No services available</p>
+{% endif %}
 {% endblock %}

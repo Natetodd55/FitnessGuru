@@ -20,40 +20,19 @@ lm.init_app(app)
 cipher = SimpleCrypt()
 cipher.init_app(app)
 
-############################### tables ##############################
-class Services(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    service_name = db.Column(db.String(255), nullable=False)
-    time = db.Column(db.String(5))
-    date = db.Column(db.String(10))
-    instructor = db.Column(db.String(50))
-    benefit_id = db.Column(db.Integer, db.ForeignKey('membership.id'), nullable=True)
-
-class Benefits(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    service_name = db.Column(db.String(30), db.ForeignKey('services.service_name'), nullable=False)
-    membership_id = db.Column(db.Integer, db.ForeignKey('membership.id'), nullable=True)
-    services = db.relationship('Services', backref='Benefits')
-
-
-class Membership(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    type = db.Column(db.String(10), nullable=False)
-    cost = db.Column(db.Integer, nullable=False)
-    purchase_date = db.Column(db.String(10), nullable=False)
-    expiration_date = db.Column(db.String(10), nullable=False)
-    member = db.relationship("Member", backref="Membership", lazy='dynamic')
-    benefits = db.relationship("Benefits", backref="Membership", lazy='dynamic')
-
+############################## tables ##############################
 class Member(UserMixin, db.Model):
+    __tablename__ = 'members'
+
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(20), nullable=False)
     last_name = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String(50), nullable=False)
     password = db.Column(db.String(75), nullable=False)
     phone = db.Column(db.String(10))
-    authenticated = db.Column(db.Boolean, default=False)
-    membership_id = db.Column(db.Integer, db.ForeignKey('membership.id'), nullable=True)
+    authenticated = db.Column(db.Boolean, default=False, nullable=False)
+    membership = db.relationship('Membership', backref='member', uselist=False)
+
     def is_authenticated(self):
         return self.authenticated
 
@@ -66,6 +45,61 @@ class Member(UserMixin, db.Model):
     def is_anonymous(self):
         return False
 
+class Membership(db.Model):
+    __tablename__ = 'memberships'
+
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String(10), nullable=False)
+    cost = db.Column(db.Integer, nullable=False)
+    purchase_date = db.Column(db.String(10), nullable=False)
+    expiration_date = db.Column(db.String(10), nullable=False)
+    member_id = db.Column(db.Integer, db.ForeignKey('members.id'), nullable=False)
+    benefits = db.relationship('Benefit', backref='membership')
+
+class Benefit(db.Model):
+    __tablename__ = 'benefits'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(30), nullable=False)
+    membership_id = db.Column(db.Integer, db.ForeignKey('memberships.id'), nullable=False)
+    services = db.relationship('Service', backref='benefit')
+
+class Service(db.Model):
+    __tablename__ = 'services'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(30), nullable=False)
+    time = db.Column(db.String(5), nullable=False)
+    date = db.Column(db.String(10), nullable=False)
+    instructor = db.Column(db.String(50), nullable=False)
+    benefit_id = db.Column(db.Integer, db.ForeignKey('benefits.id'), nullable=False)
+
+
+
+
+######################### Helper_Functions ###################################
+def get_member_services(member):
+    print(f"Member found: {member.first_name} {member.last_name} (ID: {member.id})")
+    services = []
+    membership = member.membership
+    if membership:
+        print("membership ID: ", membership.id)
+        benefits = membership.benefits
+        print("Benefits attached to membership: ", benefits)
+        for benefit in benefits:
+            print(f"Benefit(ID={benefit.id}) is {benefit.name}")
+            print(f"Benefit services: {benefit.services}")
+            servs = Service.query.all()
+            print(f"Services:  {servs}")
+            for serv in servs:
+                print(f"Service(ID={serv.id}) is {serv.name} with benefit_id = {serv.benefit_id} associated to Benefit(ID={benefit.id})")
+                print(f"Service.benefit_id({serv.benefit_id}) == benefit.id({benefit.id})  -> {serv.benefit_id == benefit.id}")
+                if serv.benefit_id == benefit.id:
+                    print(f"Service(ID={serv.id}) is attached to {benefit.name}")
+                    services.extend(Service.query.filter_by(id=serv.id))
+    if len(services) == 0:
+        return None
+    return services
 
 @lm.user_loader
 def load_user(uid):
@@ -103,7 +137,7 @@ def create_member():
         email = request.form['email']
         if Member.query.filter_by(email=email).first() == None:
             member_pass = cipher.encrypt(request.form['password'])
-            member = Member(first_name = f_name, last_name=l_name, email=email, password=member_pass)
+            member = Member(first_name = f_name, last_name=l_name, email=email, password=member_pass, authenticated=True)
             db.session.add(member)
             db.session.commit()
             login_user(member, remember=True)
@@ -134,21 +168,9 @@ def membership():
 
 @app.route("/training")
 def training():
-    services = db.session.query(Services) \
-        .join(Benefits, Services.benefit_id == Benefits.id) \
-        .join(Membership, Benefits.membership_id == Membership.id) \
-        .join(Member, Membership.id == Member.membership_id) \
-        .filter(Member.id == current_user.id) \
-        .all()
+    services = get_member_services(current_user)
 
-    for service in services:
-        print(f"Service Name: {service.service_name}")
-        print(f"Time: {service.time}")
-        print(f"Date: {service.date}")
-        print(f"Instructor: {service.instructor}")
-        print("----------------\n")
-
-    return render_template("training.html")
+    return render_template("training.html", services=services)
 
 if __name__ == "__main__":
     app.run(debug=True)
