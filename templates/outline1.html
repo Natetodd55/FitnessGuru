@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+        body {
+            background-color: #111;
+        }
+        nav {
+            display: inline;
+            border-radius: 20%;
+        }
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #333;
+        }   
+        li {
+            float: left;
+        }
+        li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+        li a:hover {
+            background-color: darkslateblue;
+        }
+        .profile_button {
+            background-color: darkslateblue;
+        }
+    </style>
+    <script>
+        
+    </script>
+    
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+    <div class="navBar">
+        <nav>
+            <ul>
+                
+                <li>
+                    <a href="/dashboard">DASHBOARD</a>
+                </li>
+                <li>
+                    <a href="/membership">MEMBERSHIP</a>
+                </li>
+                <li>
+                    <a href="/training">TRAINING</a>
+                </li>
+                
+                <li style="float:right;  margin: 0px;">
+                    <button style="border-radius: 40%; padding: 8px;" class="profile_button">
+                        <i class="material-icons">person</i>
+                    </button>
+                    <div class="dropdown-container">
+                        <a href="#">Link 1</a>
+                        <a href="#">Link 2</a>
+                        <a href="#">Link 3</a>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <div>
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
