@@ -1,55 +1,33 @@
 from flask import Flask, request, redirect
 from flask.templating import render_template
-from flask_login import login_manager
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
+# from flask_login import login_manager
+# from flask_sqlalchemy import SQLAlchemy
+# from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 
 ############################# flask_sql #############################
 app = Flask(__name__)
-db = SQLAlchemy(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+# db = SQLAlchemy(app)
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 
-########################### flask_login ############################
-app.config['SECRET_KEY'] = "FitnessGuruProject"
-lm = LoginManager(app)
-lm.init_app(app)
+############################ flask_login ############################
+# app.config['SECRET_KEY'] = "FitnessGuruProject"
+# lm = LoginManager(app)
+# lm.init_app(app)
 
+# @lm.user_loader
+# def load_user(uid):
+#     return User.query.get(uid)
 
-############################## tables ##############################
-class Benefits(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    service_name = db.Column(db.String(30))
-    membership_id = db.Column(db.Integer, db.ForeignKey('membership.id'), nullable=True)
+############################### tables ##############################
+# class User(UserMixin, db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     name = db.Column(db.String(20))
+#     age = db.Column(db.Integer)
+#     username = db.Column(db.String(20), unique=True)
+#     password = db.Column(db.String(40))
 
-class Membership(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    type = db.Column(db.String(10))
-    cost = db.Column(db.Integer)
-    purchase_date = db.Column(db.String(10))
-    expiration_date = db.Column(db.String(10))
-    member = db.relationship("Member", backref="Membership", lazy='dynamic')
-    benefits = db.relationship("Benefits", backref="Membership", lazy='dynamic')
-
-
-class Member(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(20))
-    last_name = db.Column(db.String(20))
-    email = db.Column(db.String(50))
-    phone = db.Column(db.String(10))
-    membership_id = db.Column(db.Integer, db.ForeignKey('membership.id'), nullable=True)
-
-
-
-
-from app import db, Member, Membership, Benefits
-db.create_all()
-
-@lm.user_loader
-def load_user(uid):
-    return Member.query.get(uid)
-
-
+# from app import db, User
+# db.create_all()
 
 ############################ flask_routes ###########################
 @app.route("/")
