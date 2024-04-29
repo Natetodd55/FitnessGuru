@@ -38,7 +38,17 @@
         {% else %}
         <h3>No Additional Benefits</h3>
         {% endif %}
-        <button><a href="/membership" method="ADD">Add Scervices</a></button>
+        <div class = "add-services-form-container">
+            <form action="/membership" method="POST">
+                <select class="select-from-all-benefits" name="benefit-selected" required>
+                    <option value="">Select Benefit</option>
+                    {% for benefit in all_benefits %}
+                    <option value="{{ benefit }}">{{ benefit }}</option>
+                    {% endfor %}
+                </select>
+                <input type="submit", value="Add Service">
+            </form>
+        </div>
     </div>
     {% elif membership.type == "Gold" %}
     <div>
