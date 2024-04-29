@@ -139,13 +139,16 @@ def get_all_available_benefit_names():
     return benefits
 
 
-def add_service_to_all_benefits_of_name(name, time, date, instructor_id):
-    instructor = Staff.query.filter_by(id=instructor_id).first()
-    all_benefits = Benefit.query.filter_by(name=name).all()
-    for benefit in all_benefits:
-        service = Service(name=name, time=time, date=date, instructor=instructor.first_name, instructor_id=instructor_id, benefit_id=benefit.id)
-        db.session.add(service)
-
+def add_service_to_benefit(name, time, date, instructor_id):
+    zumba_benefit = Benefit.query.filter_by(name=name).first()
+    new_service = Service(
+        name=name,
+        time=time,
+        date=date,
+        instructor_id = instructor_id,
+        benefit=zumba_benefit
+    )
+    db.session.add(new_service)
     db.session.commit()
 
 
@@ -162,30 +165,7 @@ def load_user(uid):
 ############################ flask_routes ###########################
 @app.route("/")
 def home():
-    user = User(first_name='John', last_name='Doe', email='john@example.com', password='password', user_type='member')
-    db.session.add(user)
-    db.session.commit()
 
-    # Create a membership for the user
-    membership = Membership(type='Premium', cost=100, purchase_date='2023-05-01', expiration_date='2024-05-01',
-                            user=user)
-    db.session.add(membership)
-
-    # Get or create benefit instances
-    yoga_benefit = Benefit.query.filter_by(name='Yoga Classes').first() or Benefit(name='Yoga Classes')
-    gym_benefit = Benefit.query.filter_by(name='Gym Access').first() or Benefit(name='Gym Access')
-    db.session.add_all([yoga_benefit, gym_benefit])
-
-    # Associate benefits with the membership
-    membership.benefits.append(MembershipBenefit(benefit=yoga_benefit))
-    membership.benefits.append(MembershipBenefit(benefit=gym_benefit))
-
-    # Create services for the benefits
-    yoga_service = Service(name='Vinyasa Yoga', time='08:00', date='2023-05-15', benefit=yoga_benefit)
-    gym_service = Service(name='Strength Training', time='18:00', date='2023-05-16', benefit=gym_benefit)
-    db.session.add_all([yoga_service, gym_service])
-
-    db.session.commit()
     return render_template("dashboard.html")
 
 @app.route("/login", methods=["GET", "POST"])
@@ -276,7 +256,7 @@ def add_services():
             time = request.form['time']
             date = request.form['date']
             instructor_id = current_user.id
-            add_service_to_all_benefits_of_name(name, time, date, instructor_id)
+            add_service_to_benefit(name, time, date, instructor_id)
 
     return render_template("add_services.html", all_benefits=all_benefit_names)
 

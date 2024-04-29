@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Training Calendar{% endblock %}
 {% block content %}
-<style>
+<style xmlns="">
     /* Styles to make table span the whole screen */
     table {
         width: 100%;
@@ -22,24 +22,25 @@
 
 {% if services %}
 <h1>{{ current_user.first_name }}'s Schedule</h1>
-
-<table>
-  <tr>
-    <th>Name</th>
-    <th>Time</th>
-    <th>Date</th>
-    <th>Instructor</th>
-  </tr>
-  {% for service in services %}
-  <tr class="service-name">
-    <td>{{ service.name }}</td>
-    <td>{{ service.time }}</td>
-    <td>{{ service.date }}</td>
-    <td>{{ service.instructor }}</td>
-  </tr>
-  {% endfor %}
-</table>
-{% else %}
-<h1>NO SERVICES AVAILABLE</h1>
-{% endif %}
+<div>
+  <table>
+    <tr>
+      <th>Class Name</th>
+      <th>Time</th>
+      <th>Date</th>
+      <th>Instructor</th>
+    </tr>
+    {% for service in services %}
+    <tr class="service-name">
+      <td>{{ service.name }}</td>
+      <td class="mil_time">{{ service.time }}</td>
+      <td>{{ service.date }}</td>
+      <td>{{ service.instructor.first_name }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <h1>NO SERVICES AVAILABLE</h1>
+  {% endif %}
+</div>
 {% endblock %}
