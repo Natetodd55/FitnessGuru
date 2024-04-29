@@ -241,11 +241,26 @@ def logout():
 
 @app.route("/dashboard")
 def dashboard():
-    return render_template("dashboard.html", outline="outline1.html")
+    return render_template("dashboard.html")
 
-@app.route("/membership")
+@app.route("/membership", methods=["GET", "POST"])
 def membership():
-    return render_template("membership.html", outline="outline1.html")
+    if (request.method=="POST"):
+        print("add")
+        benefits = Benefit(name=request.form["benefit-selected"], membership_id=current_user.membership.id)
+        db.session.add(benefits)
+        db.session.commit()
+        print(get_all_available_benefit_names())
+        
+        return render_template("membership.html", membership=current_user.membership, services=benefits_from_member(current_user), all_benefit=get_all_available_benefit_names())
+    else: 
+        if current_user.membership == None:
+            return render_template("membership.html", membership=None)
+        else:
+            all_benefit_names = get_all_available_benefit_names()
+            print(all_benefit_names)
+            services = benefits_from_member(current_user)
+            return render_template("membership.html", membership=current_user.membership, services=services, all_benefits=all_benefit_names)
 
 @app.route("/training")
 def training():
