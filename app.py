@@ -241,11 +241,19 @@ def logout():
 
 @app.route("/dashboard")
 def dashboard():
-    return render_template("dashboard.html", outline="outline1.html")
+    return render_template("dashboard.html")
 
-@app.route("/membership")
+@app.route("/membership", methods=["ADD"])
 def membership():
-    return render_template("membership.html", outline="outline1.html")
+    if (request.method=="ADD"):
+        
+    else:
+        if current_user.membership == None:
+            return render_template("membership.html", membership=None)
+        else:
+            services = benefits_from_member(current_user)
+            print(services)
+            return render_template("membership.html", membership=current_user.membership, services=services)
 
 @app.route("/training")
 def training():
@@ -254,11 +262,11 @@ def training():
     return  render_template("training.html")
     # return render_template("training.html", services=all_services)
 
-@app.route("/add_services", methods = ["GET", "POST"])
-def add_services():
-    if
+# @app.route("/add_services", methods = ["GET", "POST"])
+# def add_services():
+#     if
 
-    return render_template("add_services.html")
+#     return render_template("add_services.html")
 
 
 if __name__ == "__main__":

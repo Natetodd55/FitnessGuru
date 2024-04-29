@@ -21,7 +21,7 @@
     </div>
 </div>
 {% else %}
-    {% if membership == "Basic" %}
+    {% if membership.type == "Silver" %}
     <div>
         <h1>Silver Membership</h1>
         <h3>Standard Membership</h3>
@@ -38,9 +38,26 @@
         {% else %}
         <h3>No Additional Benefits</h3>
         {% endif %}
-        <button><a href="#">Add Scervices</a></button>
+        <button><a href="/membership" method="ADD">Add Scervices</a></button>
     </div>
-    {% elif membership == "Gold" %}
+    {% elif membership.type == "Gold" %}
+    <div>
+        <h1>Gold Membership</h1>
+        <h3>Premium Membership</h3>
+        <h3>24/7 Gym Access</h3>
+        <h1>Included Scervices</h1>
+        {% if services != None %}
+            {% for service in services %}
+            <table>
+                <tr>
+                    <td>{{ service.name }}</td>
+                </tr>
+            </table>
+            {% endfor %}
+        {% else %}
+        <h3>No Additional Benefits</h3>
+        {% endif %}
+    </div>
     {% endif %}
 {% endif %}
 
