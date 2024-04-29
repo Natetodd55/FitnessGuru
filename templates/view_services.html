@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Training Calendar{% endblock %}
+{% block content %}
+<style>
+    /* Styles to make table span the whole screen */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    /* Styles to separate table based on service name */
+    .service-name {
+        background-color: #111;
+    }
+</style>
+
+{% if services %}
+<h1>{{ current_user.first_name }}'s Schedule</h1>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Time</th>
+    <th>Date</th>
+    <th>Instructor</th>
+  </tr>
+  {% for service in services %}
+  <tr class="service-name">
+    <td>{{ service.name }}</td>
+    <td>{{ service.time }}</td>
+    <td>{{ service.date }}</td>
+    <td>{{ service.instructor }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<h1>NO SERVICES AVAILABLE</h1>
+{% endif %}
+{% endblock %}

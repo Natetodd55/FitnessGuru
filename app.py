@@ -73,7 +73,7 @@ class Staff(UserMixin, db.Model):
     password = db.Column(db.String(75), nullable=False)
     phone = db.Column(db.String(10))
     authenticated = db.Column(db.Boolean, default=False, nullable=False)
-    services = db.relationship('Service', backref='instructor', lazy='dynamic')
+    services = db.relationship('Service', backref='service', lazy='dynamic')
 
     def is_authenticated(self):
         return self.authenticated
@@ -87,16 +87,16 @@ class Staff(UserMixin, db.Model):
     def is_anonymous(self):
         return False
 
+
 class Service(db.Model):
     __tablename__ = 'services'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(30), nullable=False)
     time = db.Column(db.String(5), nullable=False)
     date = db.Column(db.String(10), nullable=False)
+    instructor = db.Column(db.String(50), nullable=False)
     instructor_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=False)
     benefit_id = db.Column(db.Integer, db.ForeignKey('benefits.id'), nullable=False)
-
-
 
 
 ######################### Helper_Functions ###################################
@@ -107,7 +107,7 @@ def benefits_from_member(member):
     if membership:
         print("membership ID: ", membership.id)
         benefits = membership.benefits
-
+        print("benefits: ", benefits)
     return benefits
 
 
@@ -142,17 +142,6 @@ def get_all_services_from_member_benefits(member):
         for benefit in benefits:
             services_attached = Service.query.filter_by(name = benefit.name).all()
             print(f"Services attached to benefit({benefit.name}): {services_attached}")
-        # for benefit in benefits:
-        #     print(f"Benefit(ID={benefit.id}) is {benefit.name}")
-        #     print(f"Benefit services: {benefit.services}")
-        #     servs = Service.query.all()
-        #     print(f"Services:  {servs}")
-        #     for serv in servs:
-        #         print(f"Service(ID={serv.id}) is {serv.name} with benefit_id = {serv.benefit_id} associated to Benefit(ID={benefit.id})")
-        #         print(f"Service.benefit_id({serv.benefit_id}) == benefit.id({benefit.id})  -> {serv.benefit_id == benefit.id}")
-        #         if serv.benefit_id == benefit.id:
-        #             print(f"Service(ID={serv.id}) is attached to {benefit.name}")
-        #             services.extend(Service.query.filter_by(id=serv.id))
 
     if len(services) == 0:
         return None
@@ -170,12 +159,26 @@ def find_login_from_email(email):
         return None
 
 def get_all_available_benefit_names():
+    class_names = ['Personal Training', 'Zumba', 'Racket Ball']
     benefits = []
     for benefit in Benefit.query.distinct(Benefit.name):
-        benefits.append(benefit.name)
+        if benefit.name in class_names:
+            benefits.append(benefit.name)
     return benefits
 
 
+def add_service_to_all_benefits_of_name(name, time, date, instructor_id):
+    instructor = Staff.query.filter_by(id=instructor_id).first()
+    all_benefits = Benefit.query.filter_by(name=name).all()
+    for benefit in all_benefits:
+        service = Service(name=name, time=time, date=date, instructor=instructor.first_name, instructor_id=instructor_id, benefit_id=benefit.id)
+        db.session.add(service)
+
+    db.session.commit()
+
+
+def get_staff_schedule_from_id(staff_id):
+    return Service.query.filter_by(instructor_id=staff_id).all
 
 @lm.user_loader
 def load_user(uid):
@@ -247,19 +250,34 @@ def membership():
 @app.route("/training")
 def training():
     get_all_services_from_member_benefits(current_user)
-    #all_services = get_all_member_services(current_user)
+
+
+
     return  render_template("training.html")
-    # return render_template("training.html", services=all_services)
 
 @app.route("/add_services", methods = ["GET", "POST"])
+@login_required
 def add_services():
     all_benefit_names = get_all_available_benefit_names()
     if request.method == "POST":
         #TODO: handle form
-        print("in post")
-
+        if request.form:
+            # TODO: Attach new service to all benefits with name 'benefit-selected'
+            name = request.form['benefit-selected']
+            time = request.form['time']
+            date = request.form['date']
+            instructor_id = current_user.id
+            add_service_to_all_benefits_of_name(name, time, date, instructor_id)
 
     return render_template("add_services.html", all_benefits=all_benefit_names)
+
+
+@app.route("/view_services")
+@login_required
+def view_services():
+    staff_services = get_staff_schedule_from_id(current_user.id)
+
+    return render_template("view_services.html", services=current_user.services)
 
 
 if __name__ == "__main__":

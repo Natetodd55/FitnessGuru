@@ -3,13 +3,31 @@
 {% block content %}
 <body>
     <div class = "add-services-form-container">
-        <form>
+        <form action="/add_services" method="POST">
+            <label><b>
+            Select Class Type:
+            </b></label>
             <select class="select-from-all-benefits" name="benefit-selected" required>
                 <option value="">Select Benefit</option>
                 {% for benefit in all_benefits %}
                 <option value="{{ benefit }}">{{ benefit }}</option>
                 {% endfor %}
             </select>
+            <br>
+
+            <label><b>
+            Select Class Time:
+            </b></label>
+            <input type="time" name="time" required>
+            <br>
+
+            <label><b>
+            Select Class Date:
+            </b></label>
+            <input type="date" name="date" required>
+            <br>
+
+            <input type="submit" value="Add">
         </form>
     </div>
 </body>
