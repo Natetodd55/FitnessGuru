@@ -8,7 +8,7 @@
 .dropdown .dropbtn {
   font-size: 18px;
   color: white;
-  background-color: #d1290a;
+  background-color: #333;
   border: none;
   padding: 14px 16px;
 }
@@ -21,7 +21,7 @@
 }
 
 .dropdown .dropbtn:hover {
-  background-color: #781c0b;
+  background-color: #darkslateblue;
 }
 
 .dropdown-content a {
@@ -36,18 +36,19 @@
 .dropdown:hover .dropdown-content {
   display: block;
 }
+
 .dropdown-content a {
   display: block;
   color: #FFFFFF;
   padding: 5px;
   text-decoration: none;
-  background-color: #d1290a;
+  background-color: #333;
   width: 87px;
 }
 
 .dropdown-content a:hover {
   color: #FFFFFF;
-  background-color: #781c0b;
+  background-color: darkslateblue;
 }
 
 body {
@@ -81,6 +82,8 @@ li a:hover {
 .profile_button {
   background-color: darkslateblue;
 }
+
+/* END NAV BAR */
 
 /* MEMBERSHIP PAGE */
 .memberships {
