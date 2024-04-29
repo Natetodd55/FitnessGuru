@@ -2,6 +2,7 @@
 {% block title %}Fitness Guru{% endblock %}
 {% block content %}
 
+{% if membership == None %}
 <div class="memberships">
     <div class="silver_membership">
         <h1>Silver Membership</h1>
@@ -19,5 +20,28 @@
         <button><a href="#">Upgrade Now</a></button>
     </div>
 </div>
+{% else %}
+    {% if membership == "Basic" %}
+    <div>
+        <h1>Silver Membership</h1>
+        <h3>Standard Membership</h3>
+        <h3>24/7 Gym Access</h3>
+        <h1>Current Scervices</h1>
+        {% if services != None %}
+            {% for service in services %}
+            <table>
+                <tr>
+                    <td>{{ service.name }}</td>
+                </tr>
+            </table>
+            {% endfor %}
+        {% else %}
+        <h3>No Additional Benefits</h3>
+        {% endif %}
+        <button><a href="#">Add Scervices</a></button>
+    </div>
+    {% elif membership == "Gold" %}
+    {% endif %}
+{% endif %}
 
 {% endblock %}
