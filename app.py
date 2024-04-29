@@ -64,15 +64,6 @@ class Benefit(db.Model):
     membership_id = db.Column(db.Integer, db.ForeignKey('memberships.id'), nullable=False)
     services = db.relationship('Service', backref='benefit')
 
-# class Service(db.Model):
-#     __tablename__ = 'services'
-#
-#     id = db.Column(db.Integer, primary_key=True)
-#     name = db.Column(db.String(30), nullable=False)
-#     time = db.Column(db.String(5), nullable=False)
-#     date = db.Column(db.String(10), nullable=False)
-#     instructor = db.Column(db.String(50), nullable=False)
-#     benefit_id = db.Column(db.Integer, db.ForeignKey('benefits.id'), nullable=False)
 class Staff(UserMixin, db.Model):
     __tablename__ = 'staff'
     id = db.Column(db.Integer, primary_key=True)
@@ -178,6 +169,12 @@ def find_login_from_email(email):
     else:
         return None
 
+def get_all_available_benefit_names():
+    benefits = []
+    for benefit in Benefit.query.distinct(Benefit.name):
+        benefits.append(benefit.name)
+    return benefits
+
 
 
 @lm.user_loader
@@ -256,9 +253,13 @@ def training():
 
 @app.route("/add_services", methods = ["GET", "POST"])
 def add_services():
-    if
+    all_benefit_names = get_all_available_benefit_names()
+    if request.method == "POST":
+        #TODO: handle form
+        print("in post")
 
-    return render_template("add_services.html")
+
+    return render_template("add_services.html", all_benefits=all_benefit_names)
 
 
 if __name__ == "__main__":
