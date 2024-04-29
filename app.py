@@ -21,17 +21,19 @@ cipher = SimpleCrypt()
 cipher.init_app(app)
 
 ############################## tables ##############################
-class Member(UserMixin, db.Model):
-    __tablename__ = 'members'
 
+class User(UserMixin, db.Model):
+    __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(20), nullable=False)
     last_name = db.Column(db.String(20), nullable=False)
-    email = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(50), nullable=False, unique=True)
     password = db.Column(db.String(75), nullable=False)
     phone = db.Column(db.String(10))
     authenticated = db.Column(db.Boolean, default=False, nullable=False)
-    membership = db.relationship('Membership', backref='member', uselist=False)
+    user_type = db.Column(db.String(10), nullable=False)  # 'member' or 'staff'
+    membership = db.relationship('Membership', backref='user', uselist=False)
+    services = db.relationship('Service', backref='instructor', lazy='dynamic')
 
     def is_authenticated(self):
         return self.authenticated
@@ -47,46 +49,27 @@ class Member(UserMixin, db.Model):
 
 class Membership(db.Model):
     __tablename__ = 'memberships'
-
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(10), nullable=False)
     cost = db.Column(db.Integer, nullable=False)
     purchase_date = db.Column(db.String(10), nullable=False)
     expiration_date = db.Column(db.String(10), nullable=False)
-    member_id = db.Column(db.Integer, db.ForeignKey('members.id'), nullable=False)
-    benefits = db.relationship('Benefit', backref='membership')
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    benefits = db.relationship('MembershipBenefit', back_populates='membership')
 
 class Benefit(db.Model):
     __tablename__ = 'benefits'
-
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(30), nullable=False)
-    membership_id = db.Column(db.Integer, db.ForeignKey('memberships.id'), nullable=False)
-    services = db.relationship('Service', backref='benefit')
+    name = db.Column(db.String(30), nullable=False, unique=True)
+    membership_benefits = db.relationship('MembershipBenefit', back_populates='benefit')
+    services = db.relationship('Service', backref='benefit', lazy='dynamic')
 
-class Staff(UserMixin, db.Model):
-    __tablename__ = 'staff'
-    id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(20), nullable=False)
-    last_name = db.Column(db.String(20), nullable=False)
-    email = db.Column(db.String(50), nullable=False)
-    password = db.Column(db.String(75), nullable=False)
-    phone = db.Column(db.String(10))
-    authenticated = db.Column(db.Boolean, default=False, nullable=False)
-    services = db.relationship('Service', backref='service', lazy='dynamic')
-
-    def is_authenticated(self):
-        return self.authenticated
-
-    def is_active(self):
-        return True
-
-    def get_id(self):
-        return self.id
-
-    def is_anonymous(self):
-        return False
-
+class MembershipBenefit(db.Model):
+    __tablename__ = 'membership_benefits'
+    membership_id = db.Column(db.Integer, db.ForeignKey('memberships.id'), primary_key=True)
+    benefit_id = db.Column(db.Integer, db.ForeignKey('benefits.id'), primary_key=True)
+    membership = db.relationship('Membership', back_populates='benefits')
+    benefit = db.relationship('Benefit', back_populates='membership_benefits')
 
 class Service(db.Model):
     __tablename__ = 'services'
@@ -94,8 +77,7 @@ class Service(db.Model):
     name = db.Column(db.String(30), nullable=False)
     time = db.Column(db.String(5), nullable=False)
     date = db.Column(db.String(10), nullable=False)
-    instructor = db.Column(db.String(50), nullable=False)
-    instructor_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=False)
+    instructor_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     benefit_id = db.Column(db.Integer, db.ForeignKey('benefits.id'), nullable=False)
 
 
@@ -148,16 +130,6 @@ def get_all_services_from_member_benefits(member):
     return services
 
 
-def find_login_from_email(email):
-    member = Member.query.filter_by(email=email).first()
-    staff = Staff.query.filter_by(email=email).first()
-    if member:
-        return member
-    elif staff:
-        return staff
-    else:
-        return None
-
 def get_all_available_benefit_names():
     class_names = ['Personal Training', 'Zumba', 'Racket Ball']
     benefits = []
@@ -182,7 +154,7 @@ def get_staff_schedule_from_id(staff_id):
 
 @lm.user_loader
 def load_user(uid):
-    return Member.query.get(uid)
+    return User.query.get(uid)
 
 # from app import db, User
 # db.create_all()
@@ -190,21 +162,43 @@ def load_user(uid):
 ############################ flask_routes ###########################
 @app.route("/")
 def home():
+    user = User(first_name='John', last_name='Doe', email='john@example.com', password='password', user_type='member')
+    db.session.add(user)
+    db.session.commit()
 
+    # Create a membership for the user
+    membership = Membership(type='Premium', cost=100, purchase_date='2023-05-01', expiration_date='2024-05-01',
+                            user=user)
+    db.session.add(membership)
+
+    # Get or create benefit instances
+    yoga_benefit = Benefit.query.filter_by(name='Yoga Classes').first() or Benefit(name='Yoga Classes')
+    gym_benefit = Benefit.query.filter_by(name='Gym Access').first() or Benefit(name='Gym Access')
+    db.session.add_all([yoga_benefit, gym_benefit])
+
+    # Associate benefits with the membership
+    membership.benefits.append(MembershipBenefit(benefit=yoga_benefit))
+    membership.benefits.append(MembershipBenefit(benefit=gym_benefit))
+
+    # Create services for the benefits
+    yoga_service = Service(name='Vinyasa Yoga', time='08:00', date='2023-05-15', benefit=yoga_benefit)
+    gym_service = Service(name='Strength Training', time='18:00', date='2023-05-16', benefit=gym_benefit)
+    db.session.add_all([yoga_service, gym_service])
+
+    db.session.commit()
     return render_template("dashboard.html")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if (request.method=="POST"):
         email = request.form['email']
-        temp_login = find_login_from_email(email)
-        # member = Member.query.filter_by(email=email).first()
-        if temp_login: #member
-            if request.form['password'] == cipher.decrypt(temp_login.password).decode('utf-8'):
-                temp_login.authenticated = True
-                db.session.add(temp_login)
+        user = User.query.filter_by(email=email).first()
+        if user: #member
+            if request.form['password'] == cipher.decrypt(user.password).decode('utf-8'):
+                user.authenticated = True
+                db.session.add(user)
                 db.session.commit()
-                login_user(temp_login, remember=True)
+                login_user(user, remember=True)
                 return render_template('dashboard.html')
 
     return render_template('login.html')
@@ -216,9 +210,9 @@ def create_member():
         f_name = request.form['first_name']
         l_name = request.form['last_name']
         email = request.form['email']
-        if Member.query.filter_by(email=email).first() == None:
+        if User.query.filter_by(email=email).first() == None:
             member_pass = cipher.encrypt(request.form['password'])
-            member = Member(first_name = f_name, last_name=l_name, email=email, password=member_pass, authenticated=True)
+            member = User(first_name = f_name, last_name=l_name, email=email, password=member_pass, user_type='Member' , authenticated=True)
             db.session.add(member)
             db.session.commit()
             login_user(member, remember=True)
@@ -244,6 +238,7 @@ def dashboard():
     return render_template("dashboard.html")
 
 @app.route("/membership", methods=["GET", "POST"])
+@login_required
 def membership():
     if (request.method=="POST"):
         print("add")
@@ -263,10 +258,9 @@ def membership():
             return render_template("membership.html", membership=current_user.membership, services=services, all_benefits=all_benefit_names)
 
 @app.route("/training")
+@login_required
 def training():
     get_all_services_from_member_benefits(current_user)
-
-
 
     return  render_template("training.html")
 

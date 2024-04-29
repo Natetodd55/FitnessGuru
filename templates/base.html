@@ -19,7 +19,7 @@
                         <a href="/dashboard">DASHBOARD</a>
                     </li>
 
-                    {% if current_user.membership %}
+                    {% if current_user.user_type == 'Member' %}
 
                         <li>
                             <a href="/membership">MEMBERSHIP</a>
