@@ -101,6 +101,7 @@ def get_member_services(member):
         return None
     return services
 
+
 @lm.user_loader
 def load_user(uid):
     return Member.query.get(uid)
@@ -160,11 +161,17 @@ def logout():
 
 @app.route("/dashboard")
 def dashboard():
-    return render_template("dashboard.html", outline="outline1.html")
+    return render_template("dashboard.html")
 
 @app.route("/membership")
 def membership():
-    return render_template("membership.html", outline="outline1.html")
+    if current_user.membership == None:
+        return render_template("membership.html", membership=None, services=None)
+    else:
+        print(current_user.membership.type)
+        services = get_member_services(current_user)
+        print(services)
+        return render_template("membership.html", membership=current_user.membership.type, services=services)
 
 @app.route("/training")
 def training():
