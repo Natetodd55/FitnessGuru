@@ -9,7 +9,11 @@
         <h3>Standard Membership</h3>
         <h3>24/7 Gym Access</h3>
         <h3>Customizable Benefits With Additional Payments</h3>
-        <button><a href="#">Upgrade Now</a></button>
+        <form action="/membership" method="POST">
+            <input type="hidden" name="benefit-selected" id="None" value="None">
+            <input type="hidden" name="Upgrade" id="Silver" value="Silver">
+            <input type="submit" name="Upgrade Now" value="Upgrade Now">
+        </form>
 
     </div>
     <div class="gold_membership">
@@ -17,7 +21,11 @@
         <h3>Premium Membership</h3>
         <h3>24/7 Gym Access</h3>
         <h3>All Benefits and Access Included</h3>
-        <button><a href="#">Upgrade Now</a></button>
+        <form action="/membership" method="POST">
+            <input type="hidden" name="benefit-selected" id="None" value="None">
+            <input type="hidden" name="Upgrade" id="Gold" value="Gold">
+            <input type="submit" name="Upgrade Now" value="Upgrade Now">
+        </form>
     </div>
 </div>
 {% else %}
@@ -26,24 +34,26 @@
         <h1>Silver Membership</h1>
         <h3>Standard Membership</h3>
         <h3>24/7 Gym Access</h3>
-        <h1>Current Scervices</h1>
-        {% if services != None %}
-            {% for service in services %}
+        <h1>Current Benefits</h1>
+        {% if benefits != None %}
             <table>
-                <tr>
-                    <td>{{ service.name }}</td>
-                </tr>
+                {% for benefit in benefits %}
+                    <tr>
+                        <th>{{ benefit }}</th>
+                    </tr>
+                {% endfor %}
             </table>
-            {% endfor %}
         {% else %}
         <h3>No Additional Benefits</h3>
         {% endif %}
         <div class = "add-services-form-container">
             <form action="/membership" method="POST">
+                <input type="hidden" name="Upgrade" id="None" value="None">
                 <select class="select-from-all-benefits" name="benefit-selected" required>
-                    <option value="">Select Benefit</option>
                     {% for benefit in all_benefits %}
-                    <option value="{{ benefit }}">{{ benefit }}</option>
+                        {% if benefit not in benefits %}
+                            <option value="{{ benefit }}">{{ benefit }}</option>
+                        {% endif %}
                     {% endfor %}
                 </select>
                 <input type="submit", value="Add Service">
@@ -55,15 +65,15 @@
         <h1>Gold Membership</h1>
         <h3>Premium Membership</h3>
         <h3>24/7 Gym Access</h3>
-        <h1>Included Scervices</h1>
-        {% if services != None %}
-            {% for service in services %}
+        <h1>Included Benefits</h1>
+        {% if benefits != None %}
             <table>
-                <tr>
-                    <td>{{ service.name }}</td>
-                </tr>
+                {% for benefit in benefits %}
+                    <tr>
+                        <td>{{ benefit }}</td>
+                    </tr>
+                {% endfor %}
             </table>
-            {% endfor %}
         {% else %}
         <h3>No Additional Benefits</h3>
         {% endif %}

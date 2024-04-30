@@ -82,60 +82,29 @@ class Service(db.Model):
 
 
 ######################### Helper_Functions ###################################
+def get_benefit_names_from_id(membership_benefits):
+    benefit_names = []
+    for mb in membership_benefits:
+        b = Benefit.query.filter_by(id = mb.benefit_id).first()
+        benefit_names.append(b.name)
+    print(benefit_names)
+    return benefit_names
+    
 def benefits_from_member(member):
-    print(f"Member found: {member.first_name} {member.last_name} (ID: {member.id})")
+    # print(f"Member found: {member.first_name} {member.last_name} (ID: {member.id})")
     benefits = None
     membership = member.membership
     if membership:
-        print("membership ID: ", membership.id)
+        # print("membership ID: ", membership.id)
         benefits = membership.benefits
-        print("benefits: ", benefits)
+        # print("benefits: ", benefits)
     return benefits
 
 
-def get_all_member_services(member):
-    # print(f"Member found: {member.first_name} {member.last_name} (ID: {member.id})")
-    services = []
-    benefits = benefits_from_member(member)
-    if benefits:
-        for benefit in benefits:
-            print(f"Benefit(ID={benefit.id}) is {benefit.name}")
-            print(f"Benefit services: {benefit.services}")
-            servs = Service.query.all()
-            print(f"Services:  {servs}")
-            for serv in servs:
-                print(f"Service(ID={serv.id}) is {serv.name} with benefit_id = {serv.benefit_id} associated to Benefit(ID={benefit.id})")
-                print(f"Service.benefit_id({serv.benefit_id}) == benefit.id({benefit.id})  -> {serv.benefit_id == benefit.id}")
-                if serv.benefit_id == benefit.id:
-                    print(f"Service(ID={serv.id}) is attached to {benefit.name}")
-                    services.extend(Service.query.filter_by(id=serv.id))
-
-    if len(services) == 0:
-        return None
-    return services
-
-
-def get_all_services_from_member_benefits(member):
-    print(f"Member found: {member.first_name} {member.last_name} (ID: {member.id})")
-    services = []
-    benefits = benefits_from_member(member)
-
-    if benefits:
-        for benefit in benefits:
-            services_attached = Service.query.filter_by(name = benefit.name).all()
-            print(f"Services attached to benefit({benefit.name}): {services_attached}")
-
-    if len(services) == 0:
-        return None
-    return services
-
-
 def get_all_available_benefit_names():
-    class_names = ['Personal Training', 'Zumba', 'Racket Ball']
     benefits = []
     for benefit in Benefit.query.distinct(Benefit.name):
-        if benefit.name in class_names:
-            benefits.append(benefit.name)
+        benefits.append(benefit.name)
     return benefits
 
 
@@ -226,21 +195,32 @@ def logout():
 @login_required
 def membership():
     if (request.method=="POST"):
-        print("add")
-        benefits = Benefit(name=request.form["benefit-selected"], membership_id=current_user.membership.id)
-        db.session.add(benefits)
-        db.session.commit()
-        print(get_all_available_benefit_names())
+        if request.form["benefit-selected"] != "None":
+            print(benefits_from_member(current_user))
+            b = Benefit.query.filter_by(name=request.form["benefit-selected"]).first()
+            add_benefits = MembershipBenefit(membership_id=current_user.membership.id, benefit_id=b.id)
+            db.session.add(add_benefits)
+            db.session.commit()
+            return render_template("membership.html", membership=current_user.membership, benefits=get_benefit_names_from_id(benefits_from_member(current_user)), all_benefits=get_all_available_benefit_names())
         
-        return render_template("membership.html", membership=current_user.membership, services=benefits_from_member(current_user), all_benefit=get_all_available_benefit_names())
+        if request.form["Upgrade"] != "None":
+            new_membership = Membership(type = request.form["Upgrade"], cost=0, purchase_date="04/30/2024", expiration_date="10/30/2024", user_id=current_user.id)
+            db.session.add(new_membership)
+            db.session.commit()
+        
+            return render_template("membership.html", membership=current_user.membership, benefits=get_benefit_names_from_id(benefits_from_member(current_user)), all_benefits=get_all_available_benefit_names())
     else: 
         if current_user.membership == None:
             return render_template("membership.html", membership=None)
         else:
+<<<<<<< Updated upstream
             all_benefit_names = get_all_available_benefit_names()
             print(all_benefit_names)
             services = benefits_from_member(current_user)
             return render_template("membership.html", membership=current_user.membership, services=services, all_benefits=all_benefit_names)
+=======
+            return render_template("membership.html", membership=current_user.membership, benefits=get_benefit_names_from_id(benefits_from_member(current_user)), all_benefits=get_all_available_benefit_names())
+>>>>>>> Stashed changes
 
 @app.route("/add_services", methods = ["GET", "POST"])
 @login_required
