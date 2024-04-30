@@ -206,6 +206,12 @@ def membership():
         if request.form["Upgrade"] != "None":
             new_membership = Membership(type = request.form["Upgrade"], cost=0, purchase_date="04/30/2024", expiration_date="10/30/2024", user_id=current_user.id)
             db.session.add(new_membership)
+            if (request.form["Upgrade"] == "Gold"):
+                print(get_all_available_benefit_names())
+                for mb in get_all_available_benefit_names():
+                    b = Benefit.query.filter_by(name=mb).first()
+                    add_benefits = MembershipBenefit(membership_id=current_user.membership.id, benefit_id=b.id)
+                    db.session.add(add_benefits)
             db.session.commit()
         
             return render_template("membership.html", membership=current_user.membership, benefits=get_benefit_names_from_id(benefits_from_member(current_user)), all_benefits=get_all_available_benefit_names())
