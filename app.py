@@ -213,14 +213,7 @@ def membership():
         if current_user.membership == None:
             return render_template("membership.html", membership=None)
         else:
-<<<<<<< Updated upstream
-            all_benefit_names = get_all_available_benefit_names()
-            print(all_benefit_names)
-            services = benefits_from_member(current_user)
-            return render_template("membership.html", membership=current_user.membership, services=services, all_benefits=all_benefit_names)
-=======
             return render_template("membership.html", membership=current_user.membership, benefits=get_benefit_names_from_id(benefits_from_member(current_user)), all_benefits=get_all_available_benefit_names())
->>>>>>> Stashed changes
 
 @app.route("/add_services", methods = ["GET", "POST"])
 @login_required
