@@ -1,28 +1,47 @@
 {% extends "base.html" %}
 {% block title %}Training Calendar{% endblock %}
 {% block content %}
-<style xmlns="">
-    /* Styles to make table span the whole screen */
+<style>
+    h1 {
+      text-align: center;
+    }
+
     table {
-        width: 100%;
-        border-collapse: collapse;
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
     }
 
     th, td {
-        border: 1px solid #ddd;
-        padding: 8px;
-        text-align: left;
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
     }
 
     /* Styles to separate table based on service name */
     .service-name {
-        background-color: #111;
+      background-color: #111;
+    }
+
+    .class-title {
+      text-align: center;
+    }
+
+    .class-title-row tr {
+      width: 100%;
+      display: block;
     }
 </style>
 
-{% if services %}
+{% if all_services %}
 <h1>{{ current_user.first_name }}'s Schedule</h1>
-<div>
+<div class="schedule-container">
+  {% for service_list in all_services %}
+  <table class="class-title-table">
+    <tr class="class-title-row">
+      <th class="class-title">Classes for {{ service_list[0].name }}</th>
+    </tr>
+  </table>
   <table>
     <tr>
       <th>Class Name</th>
@@ -30,15 +49,16 @@
       <th>Date</th>
       <th>Instructor</th>
     </tr>
-    {% for service in services %}
+    {% for service in service_list %}
     <tr class="service-name">
       <td>{{ service.name }}</td>
-      <td class="mil_time">{{ service.time }}</td>
+      <td>{{ service.time }}</td>
       <td>{{ service.date }}</td>
       <td>{{ service.instructor.first_name }}</td>
     </tr>
     {% endfor %}
   </table>
+  {% endfor %}
   {% else %}
   <h1>NO SERVICES AVAILABLE</h1>
   {% endif %}

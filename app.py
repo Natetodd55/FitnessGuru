@@ -140,20 +140,29 @@ def get_all_available_benefit_names():
 
 
 def add_service_to_benefit(name, time, date, instructor_id):
-    zumba_benefit = Benefit.query.filter_by(name=name).first()
+    benefit = Benefit.query.filter_by(name=name).first()
     new_service = Service(
         name=name,
         time=time,
         date=date,
         instructor_id = instructor_id,
-        benefit=zumba_benefit
+        benefit=benefit
     )
     db.session.add(new_service)
     db.session.commit()
 
 
-def get_staff_schedule_from_id(staff_id):
-    return Service.query.filter_by(instructor_id=staff_id).all
+def get_services_from_attached_benefits(user):
+    membership = Membership.query.filter_by(user_id = user.id).first()
+    benefits_attached = MembershipBenefit.query.filter_by(membership_id = membership.id).all()
+    services = []
+    for benefit in benefits_attached:
+        services_of_benefit = Service.query.filter_by(benefit_id = benefit.benefit_id).all()
+        if len(services_of_benefit) != 0:
+            services.append(services_of_benefit)
+
+    return services
+
 
 @lm.user_loader
 def load_user(uid):
@@ -213,10 +222,6 @@ def logout():
     return render_template('dashboard.html')
 
 
-@app.route("/dashboard")
-def dashboard():
-    return render_template("dashboard.html")
-
 @app.route("/membership", methods=["GET", "POST"])
 @login_required
 def membership():
@@ -236,13 +241,6 @@ def membership():
             print(all_benefit_names)
             services = benefits_from_member(current_user)
             return render_template("membership.html", membership=current_user.membership, services=services, all_benefits=all_benefit_names)
-
-@app.route("/training")
-@login_required
-def training():
-    get_all_services_from_member_benefits(current_user)
-
-    return  render_template("training.html")
 
 @app.route("/add_services", methods = ["GET", "POST"])
 @login_required
@@ -264,9 +262,9 @@ def add_services():
 @app.route("/view_services")
 @login_required
 def view_services():
-    staff_services = get_staff_schedule_from_id(current_user.id)
-
-    return render_template("view_services.html", services=current_user.services)
+    #TODO Get all Member services from Member's purchased benefits
+    all_services = get_services_from_attached_benefits(current_user)
+    return render_template("view_services.html", all_services=all_services)
 
 
 if __name__ == "__main__":
