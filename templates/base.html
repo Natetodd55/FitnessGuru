@@ -24,9 +24,11 @@
                         <li>
                             <a href="/membership">MEMBERSHIP</a>
                         </li>
+                        {% if current_user.membership %}
                         <li>
                             <a href="/view_services">SCHEDULE</a>
                         </li>
+                        {% endif %}
 
                     {% else %}
 
@@ -34,7 +36,7 @@
                             <a href="/add_services">ADD CLASS</a>
                         </li>
                         <li>
-                            <a href="/view_services">SCHEDULE</a>
+                            <a href="/view_trainer_schedule">SCHEDULE</a>
                         </li>
 
                     {% endif %}

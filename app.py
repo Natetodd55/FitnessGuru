@@ -133,6 +133,8 @@ def get_services_from_attached_benefits(user):
     return services
 
 
+
+
 @lm.user_loader
 def load_user(uid):
     return User.query.get(uid)
@@ -244,6 +246,18 @@ def view_services():
     #TODO Get all Member services from Member's purchased benefits
     all_services = get_services_from_attached_benefits(current_user)
     return render_template("view_services.html", all_services=all_services)
+
+@app.route("/view_trainer_schedule")
+@login_required
+def view_trainer_schedule():
+    service_names = Service.query.filter_by(instructor_id=current_user.id).with_entities(Service.name).distinct().all()
+    services = []
+    for name, in service_names:
+        services_with_name = Service.query.filter_by(instructor_id=current_user.id, name=name).all()
+        services.extend([services_with_name])
+    print(services)
+    return render_template("view_trainer_schedule.html", services = services)
+
 
 
 if __name__ == "__main__":

@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-{% block title %}Training Calendar{% endblock %}
+{% block title %}Instructor Calendar{% endblock %}
 {% block content %}
 
-{% if all_services %}
+{% if services %}
 <h1>{{ current_user.first_name }}'s Schedule</h1>
 <div class="schedule-container">
-  {% for service_list in all_services %}
+  {% for service_list in services %}
   <table class="class-title-table">
     <tr class="class-title-row">
       <th class="class-title">Classes for {{ service_list[0].name }}</th>
