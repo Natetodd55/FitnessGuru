@@ -226,7 +226,6 @@ def membership():
 @app.route("/add_services", methods = ["GET", "POST"])
 @login_required
 def add_services():
-    all_benefit_names = get_all_available_benefit_names()
     if request.method == "POST":
         #TODO: handle form
         if request.form:
@@ -237,7 +236,7 @@ def add_services():
             instructor_id = current_user.id
             add_service_to_benefit(name, time, date, instructor_id)
 
-    return render_template("add_services.html", all_benefits=all_benefit_names)
+    return render_template("add_services.html", all_benefits=['Zumba', 'Personal Training', 'Racquetball'])
 
 
 @app.route("/view_services")
