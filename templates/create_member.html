@@ -1,4 +1,4 @@
-{% extends "outline1.html" %}
+{% extends "base.html" %}
 {% block title %}
 Create Account
 {% endblock %}
@@ -17,8 +17,9 @@ Create Account
         <label><b>
             Email
         </b></label>
-        <input type="input" name="email" placeholder="Email">
-        {% if message %} {{ message }} {% endif %}
+<!--        <input type="input" name="email" placeholder="Email">-->
+        <input type="email" name="email" required oninvalid="this.setCustomValidity('This is not a valid email address')" oninput="this.setCustomValidity('')">
+        <br>{% if message %} {{ message }} {% endif %}
         <br>
         <label><b>
             Password

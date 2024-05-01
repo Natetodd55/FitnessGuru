@@ -10,7 +10,7 @@
         <label><b>
             Email
         </b></label>
-        <input type="input" name="email" placeholder="Email">
+        <input type="email" name="email" placeholder="Email" required oninvalid="this.setCustomValidity('This is not a valid email address')" oninput="this.setCustomValidity('')">
         <br>
         <label><b>
             Password

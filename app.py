@@ -145,7 +145,6 @@ def load_user(uid):
 ############################ flask_routes ###########################
 @app.route("/")
 def home():
-
     return render_template("dashboard.html")
 
 @app.route("/login", methods=["GET", "POST"])
@@ -191,6 +190,19 @@ def logout():
     db.session.commit()
     logout_user()
     return render_template('dashboard.html')
+
+@app.route('/updatePassword', methods=['GET', 'POST'])
+@login_required
+def updatePass():
+    if request.method == 'POST':
+        oldPassword = request.form['oldP']
+        if cipher.decrypt(current_user.password).decode('utf-8') != oldPassword:
+            return render_template('updatePassword.html')
+        updatedUser = User.query.filter_by(id=current_user.id).first()
+        updatedUser.password = cipher.encrypt(request.form['newP'])
+        db.session.commit()
+        return redirect('/')
+    return render_template('updatePassword.html')
 
 
 @app.route("/membership", methods=["GET", "POST"])

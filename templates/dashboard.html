@@ -1,8 +1,34 @@
 {% extends "base.html" %}
-{% block title %}HOME{% endblock %}
-{% block content %}
-<h1>DASHBOARD</h1>
-<style>
 
-</style>
+{% block title %}HOME{% endblock %}
+
+{% block content %}
+<h1>WELCOME TO FITNESS GURU!</h1>
+
+<div class="header-image-container">
+    <img src="/static/home_header_image.jpg" alt="Header Image" class="header-image">
+</div>
+
+<div class="about-us">
+    <div class="our-mission">
+        <h1>Our mission</h1>
+        <h2>Fuck Bitches Get Money</h2>
+    </div>
+    <div class="our-info">
+        <h1>Information</h1>
+        <h2>Zach is stinky</h2>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    window.addEventListener('scroll', function() {
+        var headerImage = document.querySelector('.header-image');
+        var scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+        var opacity = 1 - (scrollPosition / headerImage.offsetHeight);
+        headerImage.style.opacity = Math.max(0, opacity);
+    });
+</script>
 {% endblock %}
